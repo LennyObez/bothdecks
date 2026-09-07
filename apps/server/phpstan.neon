@@ -1,0 +1,24 @@
+parameters:
+    level: max
+    phpVersion: 80501
+
+    paths:
+        - src
+        - tests
+        - bootstrap
+        - routes
+        - config
+        - public
+
+    # Suppressing a finding is forbidden: there is no baseline file and no ignore list. A finding is fixed at
+    # its cause, or the code that produces it is changed. See CONTRIBUTING.md.
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+    checkMissingCallableSignature: true
+    checkUninitializedProperties: true
+    checkBenevolentUnionTypes: true
+    checkImplicitMixed: true
+    reportPossiblyNonexistentGeneralArrayOffset: true
+    reportPossiblyNonexistentConstantArrayOffset: true
+    reportAlwaysTrueInLastCondition: true
+    reportAnyTypeWideningInVarTag: true

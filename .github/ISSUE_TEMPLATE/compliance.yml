@@ -1,0 +1,55 @@
+name: Compliance
+description: An obligation to verify, implement or evidence.
+labels: ["type:compliance"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Nothing is written into the repository as settled law until it has been read in a primary source.
+        Uncertain means unusable.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Data protection
+        - Artificial intelligence
+        - Digital services
+        - Accessibility
+        - Employment law
+        - Consumer law
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: instrument
+    attributes:
+      label: Instrument and article
+      description: The specific provision, not the regulation as a whole.
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Primary source
+      description: A link to the official text or the authority's own page.
+    validations:
+      required: true
+
+  - type: textarea
+    id: obligation
+    attributes:
+      label: What it requires of this product
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: What would evidence compliance
+      description: The test, the record or the document that would demonstrate it.
+    validations:
+      required: true

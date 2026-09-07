@@ -1,0 +1,68 @@
+name: Framework compatibility
+
+# The framework dependency is pinned to one commit ([ADR-0002]). That protects the product from surprise
+# changes, and it also means divergence accumulates silently. This job replays the product's suite against the
+# head of the framework's active branch so a breaking change is discovered the day it lands rather than at the
+# next upgrade.
+#
+# It reports; it never blocks a merge. A failure here is information about the framework, not a defect in a
+# pull request.
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: framework-compatibility
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/server
+
+jobs:
+  replay:
+    name: Replay the suite against the framework head
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.5'
+          extensions: ctype, curl, dom, exif, fileinfo, gd, intl, libxml, mbstring, openssl, pdo, pdo_pgsql, simplexml, sodium, zip, zlib
+          coverage: none
+          tools: composer:v2
+
+      # `composer update --with` applies a temporary constraint without rewriting composer.json. Using
+      # `composer require` here would strip the commit pin from the manifest, and the guarantee that asserts
+      # the pin would then fail every night for a reason that has nothing to do with the framework.
+      - name: Resolve the framework at its branch head
+        run: composer update --no-interaction --no-progress --prefer-dist --with "pulsar/framework:dev-chore/quality-and-performance" pulsar/framework
+
+      - name: Report the commit under test
+        run: |
+          set -euo pipefail
+          php -r '$l = json_decode(file_get_contents("composer.lock"), true);
+          foreach ($l["packages"] as $p) {
+              if ($p["name"] === "pulsar/framework") { echo $p["source"]["reference"], PHP_EOL; }
+          }'
+
+      # Only the suites that describe behaviour. The guarantee suite asserts properties of the manifest, which
+      # this job deliberately resolves against a different commit, so replaying it here would measure the job's
+      # own setup rather than the framework.
+      - name: Replay the unit suite
+        run: vendor/bin/phpunit --configuration phpunit.xml --testsuite unit
+
+      - name: Replay the integration suite
+        run: vendor/bin/phpunit --configuration phpunit.xml --testsuite integration
+
+      - name: Restore the pinned manifest
+        if: always()
+        run: git checkout -- composer.json composer.lock

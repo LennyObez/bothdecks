@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         cacheDirectory=".phpunit.cache"
+         colors="true"
+         executionOrder="random"
+         resolveDependencies="true"
+         requireCoverageMetadata="false"
+         beStrictAboutCoverageMetadata="false"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         failOnNotice="true"
+         failOnDeprecation="true"
+         failOnEmptyTestSuite="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnIncompleteTests="true"
+         displayDetailsOnSkippedTests="true">
+
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+        <!--
+            The guarantees suite holds the product properties listed in docs/testing.md. It is separated so it
+            can be run alone, and so that a reader can find every guarantee in one place.
+        -->
+        <testsuite name="guarantees">
+            <directory>tests/Guarantee</directory>
+        </testsuite>
+    </testsuites>
+
+    <!--
+        Coverage covers the wiring as well as the classes. bootstrap/ and routes/ are executable PHP that the
+        integration suite exists to protect; leaving them out of the measurement would report full coverage of
+        the code least likely to be exercised by a unit test.
+    -->
+    <source>
+        <include>
+            <directory>src</directory>
+            <directory>bootstrap</directory>
+            <directory>routes</directory>
+        </include>
+    </source>
+
+    <php>
+        <ini name="error_reporting" value="E_ALL"/>
+        <env name="APP_ENV" value="testing"/>
+    </php>
+</phpunit>

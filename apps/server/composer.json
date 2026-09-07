@@ -1,0 +1,90 @@
+{
+    "name": "bothdecks/server",
+    "description": "Both Decks server: JSON API for the mobile clients and server-rendered web application.",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.5.1",
+        "ext-ctype": "*",
+        "ext-curl": "*",
+        "ext-dom": "*",
+        "ext-exif": "*",
+        "ext-fileinfo": "*",
+        "ext-gd": "*",
+        "ext-intl": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-pdo": "*",
+        "ext-pdo_pgsql": "*",
+        "ext-simplexml": "*",
+        "ext-sodium": "*",
+        "ext-zip": "*",
+        "ext-zlib": "*",
+        "pulsar/framework": "dev-chore/quality-and-performance#6ec5f39021ee1ef00bf4e04092d300d99045ec4f"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "infection/infection": "^0.35.4",
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^13.2",
+        "roave/security-advisories": "dev-latest"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/LennyObez/pulsar-framework.git"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "BothDecks\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BothDecks\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "infection/extension-installer": true
+        }
+    },
+    "suggest": {
+        "ext-xdebug": "Required by the mutation-testing step only. Any coverage driver works; xdebug is what the pipeline installs."
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "phpunit --configuration phpunit.xml",
+        "test:guarantees": "phpunit --configuration phpunit.xml --testsuite guarantees",
+        "phpstan": "phpstan analyse --configuration phpstan.neon",
+        "cs:check": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix",
+        "mutation": "infection --configuration=infection.json5 --no-interaction --initial-tests-php-options=\"-d xdebug.mode=coverage\"",
+        "validate:manifest": "@composer validate --no-check-publish --no-interaction",
+        "qa": [
+            "@validate:manifest",
+            "@cs:check",
+            "@phpstan",
+            "@test"
+        ],
+        "audit:deps": "@composer audit --locked --no-interaction",
+        "qa:full": [
+            "@qa",
+            "@mutation",
+            "@audit:deps"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Run every suite: unit, integration and guarantees.",
+        "test:guarantees": "Run only the product guarantee suite described in docs/testing.md.",
+        "mutation": "Measure which lines the suite actually checks, not merely which ones ran.",
+        "audit:deps": "Check the locked dependencies against known security advisories.",
+        "validate:manifest": "Check the manifest is well formed and the lock file still matches it.",
+        "qa": "The gate sequence: formatting, static analysis at max level, every test suite.",
+        "qa:full": "The gate sequence plus mutation testing and the dependency audit."
+    }
+}

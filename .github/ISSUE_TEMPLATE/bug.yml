@@ -1,0 +1,56 @@
+name: Bug
+description: Something behaves differently from what it guarantees.
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problems do not go here. See [SECURITY.md](../blob/main/SECURITY.md).
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - Web
+        - Android
+        - iOS
+        - API
+        - Recruiter console
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: If a documented guarantee is broken, name it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Smallest reproduction
+      description: The shortest sequence that produces it, every time.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: input
+    id: locale
+    attributes:
+      label: Interface language
+      description: Several defects only appear in one language.
+    validations:
+      required: false

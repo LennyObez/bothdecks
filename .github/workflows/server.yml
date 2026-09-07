@@ -1,0 +1,80 @@
+name: Server
+
+# The path filter applies to pushes only. On a pull request this workflow always runs, because it provides a
+# required status check: a filtered check that never fires is not "skipped", it is permanently pending, and the
+# pull request can never merge. Running it costs well under a minute today. When a run becomes expensive (the
+# iOS pipeline in M6), the filter comes back together with a companion job that reports the same context when
+# nothing relevant changed.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/server/**'
+      - 'contract/**'
+      - '.github/workflows/server.yml'
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: server-${{ github.ref }}
+  # Never cancel a run on the default branch: a merged commit that never finished its checks leaves the
+  # branch in a state nobody measured.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+defaults:
+  run:
+    working-directory: apps/server
+
+jobs:
+  gates:
+    name: Quality gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.5'
+          extensions: ctype, curl, dom, exif, fileinfo, gd, intl, libxml, mbstring, openssl, pdo, pdo_pgsql, simplexml, sodium, zip, zlib
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      # The gate sequence from docs/testing.md. Each step writes its own output; none is piped, so no step
+      # reports another command's exit status.
+      - name: Manifest and lock file
+        run: composer run validate:manifest
+
+      - name: Formatting
+        run: composer run cs:check
+
+      - name: Static analysis
+        run: composer run phpstan
+
+      - name: Unit tests
+        run: vendor/bin/phpunit --configuration phpunit.xml --testsuite unit
+
+      # Constructor injection resolves at dispatch time, not at compile time. A unit suite can be entirely
+      # green while the application cannot serve a single request, so every route is exercised here.
+      - name: Integration tests
+        run: vendor/bin/phpunit --configuration phpunit.xml --testsuite integration
+
+      # The guarantee suite is not run here. It scans the whole repository, so it belongs to the workflow that
+      # carries no path filter; see the `guarantees` job in repository.yml. Running it behind this workflow's
+      # filter would mean a change under `docs/` or `.github/` could break a guarantee without any pipeline
+      # noticing.
+
+      # Line coverage says which lines ran; this says which are actually checked. Without it the threshold in
+      # infection.json5 is a number nobody enforces, and test quality can decay silently.
+      - name: Mutation testing
+        run: composer run mutation
+
+      - name: Dependency audit
+        run: composer run audit:deps

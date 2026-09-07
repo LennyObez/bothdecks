@@ -1,0 +1,29 @@
+* text=auto eol=lf
+
+*.php   text diff=php
+*.kt    text diff=kotlin
+*.kts   text diff=kotlin
+*.swift text diff=swift
+*.md    text diff=markdown
+*.json  text
+*.yml   text
+*.yaml  text
+*.css   text
+*.svg   text
+
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.webp   binary
+*.avif   binary
+*.ico    binary
+*.woff2  binary
+*.pdf    binary
+*.mp4    binary
+
+# Keep generated artefacts out of pull-request diffs while still tracking them.
+contract/openapi/openapi.json linguist-generated=true
+design/tokens/generated/**    linguist-generated=true
+
+# The repository is a polyglot product; report its real composition.
+docs/**  linguist-documentation=true

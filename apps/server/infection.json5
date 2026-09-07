@@ -1,0 +1,29 @@
+{
+  // Mutation testing measures which lines are actually checked, not merely which ones ran. A surviving
+  // mutant marks a line no assertion covers. See docs/testing.md.
+  $schema: 'vendor/infection/infection/resources/schema.json',
+  source: {
+    // The wiring is mutated too. A mutant in bootstrap/ that no test kills means the integration suite is not
+    // actually checking the assembly it was written to protect.
+    directories: ['src', 'bootstrap', 'routes'],
+  },
+  logs: {
+    text: 'var/infection/infection.log',
+    summary: 'var/infection/summary.log',
+    stryker: {
+      report: 'main',
+    },
+  },
+  tmpDir: 'var/infection',
+  // Thresholds ramp as the product grows. The modules where a silent defect is expensive (identity,
+  // matching, data protection, exports) take the highest thresholds as they are written.
+  minMsi: 85,
+  minCoveredMsi: 90,
+  testFramework: 'phpunit',
+  // Every suite participates. Restricting the runner to the unit suite would leave code that only the
+  // integration and guarantee suites exercise reported as uncovered, understating what the tests actually
+  // check and hiding which of them does the checking.
+  mutators: {
+    '@default': true,
+  },
+}

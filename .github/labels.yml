@@ -1,0 +1,138 @@
+# Labels are declared here and applied by .github/workflows/labels.yml, on every change to this file and once
+# a week. A label edited in the interface has its colour and description restored; a label created by hand is
+# left alone, because deleting one would strip it from every issue that carries it.
+
+# Type: what kind of work this is. Mirrors the Type field on the project board.
+- name: 'type:epic'
+  color: '5A32A3'
+  description: A milestone-sized body of work with child issues
+- name: 'type:feature'
+  color: '0E8A16'
+  description: A capability the product should have
+- name: 'type:bug'
+  color: 'D73A4A'
+  description: Behaviour differs from what is guaranteed
+- name: 'type:chore'
+  color: 'C5DEF5'
+  description: Maintenance with no user-visible change
+- name: 'type:security'
+  color: 'B60205'
+  description: Attack surface, credentials, or data handling
+- name: 'type:compliance'
+  color: '5319E7'
+  description: An obligation to verify, implement or evidence
+- name: 'type:docs'
+  color: '006B75'
+  description: Documentation
+
+# Area: which module. Mirrors docs/architecture.md.
+- name: 'area:identity'
+  color: 'BFD4F2'
+  description: Accounts, sessions, devices, passkeys
+- name: 'area:taxonomy'
+  color: 'BFD4F2'
+  description: Occupation and skill codes, labels, bubbles
+- name: 'area:profile'
+  color: 'BFD4F2'
+  description: Candidate profile and document parsing
+- name: 'area:offer'
+  color: 'BFD4F2'
+  description: Job offers and URL import
+- name: 'area:discovery'
+  color: 'BFD4F2'
+  description: Deck composition, ranking, explanation
+- name: 'area:swipe'
+  color: 'BFD4F2'
+  description: Intents, reciprocity, matches
+- name: 'area:conversation'
+  color: 'BFD4F2'
+  description: Post-match exchange and screening
+- name: 'area:evaluation'
+  color: 'BFD4F2'
+  description: Scorecards, shortlist, external export
+- name: 'area:record'
+  color: 'BFD4F2'
+  description: Activity log and exports for public employment services
+- name: 'area:trust'
+  color: 'BFD4F2'
+  description: Moderation, verification, fraud
+- name: 'area:governance'
+  color: 'BFD4F2'
+  description: Model registry, decision logs, impact assessments
+- name: 'area:web'
+  color: 'D4C5F9'
+  description: Server-rendered web surfaces
+- name: 'area:android'
+  color: 'D4C5F9'
+  description: Android application
+- name: 'area:ios'
+  color: 'D4C5F9'
+  description: iOS application
+- name: 'area:shared'
+  color: 'D4C5F9'
+  description: Kotlin Multiplatform shared module
+- name: 'area:contract'
+  color: 'FBCA04'
+  description: The OpenAPI contract every client depends on
+- name: 'area:design'
+  color: 'D4C5F9'
+  description: Design tokens and the design system
+- name: 'area:infra'
+  color: 'C5DEF5'
+  description: Infrastructure and deployment
+- name: 'area:ci'
+  color: 'C5DEF5'
+  description: Pipelines and quality gates
+
+# Priority
+- name: 'priority:p0'
+  color: 'B60205'
+  description: Critical. Drop other work
+- name: 'priority:p1'
+  color: 'D93F0B'
+  description: High
+- name: 'priority:p2'
+  color: 'FBCA04'
+  description: Normal
+- name: 'priority:p3'
+  color: 'C2E0C6'
+  description: Low
+
+# Cross-cutting concerns, which are not an area of the code but a property of the work.
+- name: 'accessibility'
+  color: '0E8A16'
+  description: Touches how the product behaves for assistive technology
+- name: 'dependencies'
+  color: '0366D6'
+  description: Applied by the dependency update bot
+- name: 'php'
+  color: '45229E'
+  description: Applied by the dependency update bot to server dependencies
+
+# Triage outcomes
+- name: 'duplicate'
+  color: 'CFD3D7'
+  description: Already tracked elsewhere
+- name: 'wontfix'
+  color: 'FFFFFF'
+  description: Understood and deliberately not being done
+- name: 'question'
+  color: 'D876E3'
+  description: Needs an answer before it can become work
+- name: 'help wanted'
+  color: '008672'
+  description: Well understood, and open to anyone who wants it
+
+# State
+- name: 'blocked'
+  color: '000000'
+  description: Cannot proceed until something else resolves
+- name: 'needs-research'
+  color: 'FEF2C0'
+  description: Requires a primary source before it can be built
+- name: 'good first issue'
+  color: '7057FF'
+  description: Self-contained, with the context needed to start
+- name: 'guarantee'
+  color: '0052CC'
+  description: Adds or changes a product guarantee enforced by a test

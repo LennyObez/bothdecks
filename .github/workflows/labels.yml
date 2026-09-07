@@ -1,0 +1,93 @@
+name: Labels
+
+# Labels are declared in .github/labels.yml and applied from it. A label edited in the interface has its
+# colour and description restored on the next run, so the declared set stays authoritative.
+#
+# The job adds and updates; it does not delete. A label created by hand therefore survives, which is
+# deliberate: deleting a label removes it from every issue that carries it, and that is not a decision a
+# scheduled job should take on its own. Removing one is a manual step.
+#
+# The weekly run matters as much as the push trigger: without it, a label edited in the interface would stay
+# edited until someone happened to touch the declaration file.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/labels.yml'
+      - '.github/workflows/labels.yml'
+  schedule:
+    - cron: '23 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: labels
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    name: Synchronise labels
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Apply the declared label set
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > labels.tsv
+          import re
+          import sys
+
+          entries, current = [], None
+          for line in open('.github/labels.yml', encoding='utf-8'):
+              line = line.rstrip('\n')
+              if line.strip().startswith('#') or not line.strip():
+                  continue
+              m = re.match(r"^- name: '(.+)'$", line.strip())
+              if m:
+                  current = {'name': m.group(1), 'color': '', 'description': ''}
+                  entries.append(current)
+                  continue
+              if current is None:
+                  continue
+              m = re.match(r"^color: '(.+)'$", line.strip())
+              if m:
+                  current['color'] = m.group(1)
+                  continue
+              m = re.match(r'^description: (.+)$', line.strip())
+              if m:
+                  current['description'] = m.group(1)
+
+          if not entries:
+              sys.exit('No labels parsed from .github/labels.yml')
+
+          # A partially parsed entry would be applied as a label with no colour or no description, quietly
+          # replacing a correct one. Refusing here is the only place that mistake is still cheap.
+          incomplete = [e['name'] for e in entries if not e['color'] or not e['description']]
+          if incomplete:
+              sys.exit('Incomplete label declarations: ' + ', '.join(incomplete))
+
+          if any('\t' in value for e in entries for value in e.values()):
+              sys.exit('A label field contains a tab, which the shell loop below uses as its separator.')
+
+          for entry in entries:
+              print('\t'.join([entry['name'], entry['color'], entry['description']]))
+          PY
+
+          echo "Parsed $(wc -l < labels.tsv) label declarations."
+
+          while IFS=$'\t' read -r name color description; do
+            gh label create "$name" --color "$color" --description "$description" --repo "$REPOSITORY" \
+              || gh label edit "$name" --color "$color" --description "$description" --repo "$REPOSITORY"
+          done < labels.tsv
+
+          echo "Applied $(wc -l < labels.tsv) labels."

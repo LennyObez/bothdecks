@@ -1,0 +1,29 @@
+version: 2
+
+updates:
+  - package-ecosystem: composer
+    directory: /apps/server
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    ignore:
+      # The framework is pinned to an exact commit on purpose, and moving it is a deliberate decision rather
+      # than an automated bump. A nightly pipeline reports divergence without opening a pull request.
+      - dependency-name: pulsar/framework
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore
+      include: scope
+
+# The gradle and swift ecosystems are added in M6, with the manifests they read. Declaring an ecosystem whose
+# manifest does not exist makes Dependabot log an error on every run, which trains everyone to ignore its
+# reports.

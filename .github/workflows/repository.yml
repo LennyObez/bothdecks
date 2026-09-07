@@ -1,0 +1,131 @@
+name: Repository
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-${{ github.ref }}
+  # Never cancel a run on the default branch: a merged commit that never finished its checks leaves the
+  # branch in a state nobody measured.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  coverage:
+    name: Every directory is built by a pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    # ADR-0001 makes the single repository safe only if no directory can be added without a pipeline that
+    # builds it. A path filter that is too narrow silently skips a build, which is the failure mode this job
+    # exists to prevent.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check that each directory holding source appears in a workflow path filter
+        run: |
+          set -euo pipefail
+          # Directories are discovered from what git tracks, never from a list written here: a hard-coded list
+          # cannot detect the very thing this job exists to catch, which is a directory nobody remembered.
+          #
+          # A directory needs a build pipeline only once it holds something to build. Documentation-only
+          # directories are covered by the checks in this workflow, which carry no path filter. The moment
+          # source lands in one of them, this check starts demanding a pipeline.
+          #
+          # Both depths are considered: `apps` and `apps/server`, because a filter may legitimately name
+          # either. A directory is covered when some workflow filters on it or on one of its ancestors.
+          uncovered=$(mktemp)
+          filters="$(cat .github/workflows/*.yml)"
+
+          candidates=$( { git ls-files | cut -d/ -f1; git ls-files | grep '/' | cut -d/ -f1,2; } | sort -u )
+
+          for dir in $candidates; do
+            [ -d "$dir" ] || continue
+            source_files="$(git ls-files "$dir" | grep -cv '\.md$' || true)"
+            [ "$source_files" -gt 0 ] || continue
+
+            covered=no
+            probe="$dir"
+            while [ -n "$probe" ]; do
+              if printf '%s' "$filters" | grep -q "'$probe/"; then covered=yes; break; fi
+              case "$probe" in */*) probe="${probe%/*}" ;; *) probe="" ;; esac
+            done
+
+            [ "$covered" = yes ] || echo "$dir ($source_files source files)" >> "$uncovered"
+          done
+
+          if [ -s "$uncovered" ]; then
+            echo "These directories hold source but no workflow path filter builds them:"
+            cat "$uncovered"
+            echo "Add a pipeline, or extend an existing one."
+            exit 1
+          fi
+          echo "Every directory holding source is covered by a pipeline."
+
+  guarantees:
+    name: Product guarantees
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # These tests assert properties of the whole repository (which files may name the product, which
+    # extensions are declared, which actions are pinned), so they run on every pull request rather than behind
+    # a path filter that would let a change elsewhere break one unnoticed.
+    defaults:
+      run:
+        working-directory: apps/server
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.5'
+          extensions: ctype, curl, dom, exif, fileinfo, gd, intl, libxml, mbstring, openssl, pdo, pdo_pgsql, simplexml, sodium, zip, zlib
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run the guarantee suite
+        run: vendor/bin/phpunit --configuration phpunit.xml --testsuite guarantees
+
+  links:
+    name: Documentation links resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    # A README that points at a document nobody wrote is the cheapest possible broken promise, and the one a
+    # reader hits first.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check relative links in Markdown
+        run: |
+          set -euo pipefail
+          # Findings are collected in a file rather than a pipeline, because a subshell's exit status does not
+          # reach the enclosing script and the check would pass while reporting failures.
+          broken=$(mktemp)
+          for file in $(git ls-files '*.md'); do
+            dir="$(dirname "$file")"
+            for target in $(grep -oE '\]\([^)#][^)]*\)' "$file" | sed -E 's/^\]\(//; s/\)$//'); do
+              case "$target" in
+                http://*|https://*|mailto:*) continue ;;
+              esac
+              resolved="$dir/${target%%#*}"
+              if [ ! -e "$resolved" ]; then
+                echo "$file -> $target" >> "$broken"
+              fi
+            done
+          done
+          if [ -s "$broken" ]; then
+            echo "Markdown links pointing at paths that do not exist:"
+            cat "$broken"
+            exit 1
+          fi
+          echo "All relative Markdown links resolve."

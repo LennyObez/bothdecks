@@ -1,0 +1,10 @@
+# Every path has an owner. The contract and the guarantees are listed separately because a change to either
+# affects every client and every promise the README makes.
+
+*                                   @LennyObez
+
+/contract/                          @LennyObez
+/apps/server/tests/Guarantee/       @LennyObez
+/docs/adr/                          @LennyObez
+/.github/workflows/                 @LennyObez
+/infra/                             @LennyObez

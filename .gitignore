@@ -1,0 +1,68 @@
+# Dependencies
+/vendor/
+/apps/server/vendor/
+node_modules/
+.pnp.*
+
+# Build output
+/build/
+/dist/
+**/build/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+DerivedData/
+.gradle/
+local.properties
+*.hprof
+
+# Runtime and caches
+/apps/server/var/
+/apps/server/public/assets/
+*.log
+.php-cs-fixer.cache
+.phpunit.result.cache
+.phpunit.cache/
+
+# Secrets and local configuration: never tracked.
+# Signing and distribution material is listed by extension rather than by location, because the mistake this
+# guards against is a key landing somewhere nobody expected.
+.env
+.env.*
+!.env.example
+.envrc
+.direnv/
+
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*.jks
+*.keystore
+*.mobileprovision
+*.cer
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+!**/*.pub
+
+**/google-services.json
+**/GoogleService-Info.plist
+
+/infra/**/*.tfvars
+/infra/**/*.tfvars.json
+/infra/**/.terraform/
+/infra/**/terraform.tfstate*
+/infra/**/*.auto.tfvars
+
+# Working notes: deliberately untracked, see CONTRIBUTING.md
+/.worklog/
+
+# Operating system and editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
