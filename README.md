@@ -143,6 +143,7 @@ deliberate violation; a guarantee nobody has seen fail is a guarantee nobody has
 | Every module is fenced by the boundary check, and every fence has a module | The check only sees the layers it is told about; a module added without its fence is a module every other module may reach into |
 | Every workflow action is pinned to a commit | A tag can be moved after review by whoever owns the action |
 | No tracked file carries an absolute path from a developer's machine | Every tracked file is published, and such a path says something about its author and nothing about the software |
+| Every relative link in a tracked Markdown file points at a path that exists | A document pointing at a page nobody wrote is the cheapest broken promise, and the one a reader hits first |
 | The application boots and answers its routes | Constructor injection resolves at dispatch time, so a green unit suite proves nothing about serving a request |
 
 **Committed, not yet enforced.** Each becomes a test in the milestone named beside it. Until then it is an

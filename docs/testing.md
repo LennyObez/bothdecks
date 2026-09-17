@@ -102,6 +102,7 @@ Enforced today:
 | Every module under `src/` is fenced by the boundary check, and every fence has its module | ADR-0002 |
 | Every workflow action is pinned to a commit and keeps its version in a comment | none |
 | No tracked file carries an absolute path from a developer's machine | the publication rule in CONTRIBUTING.md |
+| Every relative link in a tracked Markdown file points at a path that exists | none |
 | The application boots and answers its routes | none |
 
 Each of the remaining guarantees is listed in the README against the milestone that will enforce it. When that

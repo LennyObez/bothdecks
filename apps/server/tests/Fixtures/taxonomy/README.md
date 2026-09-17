@@ -7,4 +7,4 @@ product does not serve. It opens with the same class as a real snapshot
 and imports through the same importer, so the integration suite exercises the code a deployment runs.
 
 The content is ESCO data, European Commission, DG Employment, Social Affairs and Inclusion, reused under the
-Creative Commons Attribution 4.0 International licence. See [`docs/taxonomy.md`](../../../../docs/taxonomy.md).
+Creative Commons Attribution 4.0 International licence. See [`docs/taxonomy.md`](../../../../../docs/taxonomy.md).
