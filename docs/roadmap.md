@@ -26,26 +26,47 @@ make M4 possible, and everything after it improves a loop that already works.
 - [x] Repository published, with a ruleset requiring signed commits, a linear history, a pull request and the
       four checks above
 - [x] Project board with the shared field set, eleven milestones, and the declared labels applied
-- [ ] Staging environment and a deployment that runs from a tag, on the existing virtual machine in the Paris
-      region, holding synthetic data only ([ADR-0008](adr/0008-staging-runs-on-existing-infrastructure.md))
+- [x] Design token source, its generator and the twelve checks that hold the three themes and the design
+      file to it, brought forward from M4 because nothing in it depends on the milestones between
+- [x] The decisions of 9 September recorded: hosting ([ADR-0009](adr/0009-hosting-in-the-paris-region.md)),
+      presence in the recruiter deck as opt-in ([ADR-0010](adr/0010-presence-in-the-recruiter-deck-is-opt-in.md)),
+      the ranking as an automated decision ([ADR-0011](adr/0011-the-ranking-is-treated-as-an-automated-decision.md)),
+      the Flemish Region first ([ADR-0012](adr/0012-launch-in-the-flemish-region-first.md))
+- [ ] Staging environment on the virtual machine in the Paris region, deployed from the `staging` branch by
+      the committed script, holding synthetic data only and reachable only behind authentication
+      ([ADR-0009](adr/0009-hosting-in-the-paris-region.md), [deployment](deployment.md)). Open until
+      `/health` has been seen answering over TLS.
 
 ## M1: Taxonomy
 
 *Done when a keyword in one language resolves to the same code as its equivalent in another, and a neighbouring
 occupation surfaces. Both measured, not asserted.*
 
-- [ ] Wire the framework's structural boundary checker into the gate sequence, now that more than one module
-      exists to keep apart
-- [ ] Choose the reference classification; record licence, language coverage, formats and release cadence
-- [ ] Schema: versions, occupations, skills, relations, labels per language, embeddings
-- [ ] Ingestion with digest and dated version
-- [ ] Version migration producing a report of disappeared, merged and new codes
-- [ ] Resolution cascade: exact label, approximate, vector, then ask the user
-- [ ] Every resolution records its path, score and taxonomy version
-- [ ] Product-owned namespace for skills absent from the reference, with a promotion procedure
-- [ ] Bubble computation from the four weighted signals, stored and versioned
-- [ ] Administration screen to inspect and correct a bubble
-- [ ] Measures: coverage, mapping precision per language, share needing confirmation
+- [x] Wire a structural boundary checker into the gate sequence, now that more than one module exists to
+      keep apart: `deptrac.yaml`, every dependency declared, a guarantee test keeping it in step with `src/`
+- [x] Choose the reference classification; record licence, language coverage, formats and release cadence:
+      ESCO v1.2.1, in [`taxonomy.md`](taxonomy.md)
+- [x] Schema: versions, occupations, skills, relations, labels per language, embeddings
+- [x] Ingestion with digest and dated version: `taxonomy:snapshot` and `taxonomy:import`
+- [x] Version migration producing a report of disappeared and new codes, changed labels and changed skill
+      relations: `taxonomy:report`. Merged codes are read from the disappeared and the new; the source
+      publishes no merge relation the report could follow
+- [x] Resolution cascade: exact label, approximate, vector, then ask the user
+- [x] Every resolution records its path, score and taxonomy version
+- [x] Product-owned namespace for skills absent from the reference, with a promotion procedure: the table
+      and the procedure; the commands arrive with the first module that needs a skill the source lacks
+- [x] Bubble computation from the four weighted signals, stored and versioned; the mobility signal takes
+      weight zero, declared, until the product has histories to observe
+- [x] Administration screen to inspect a bubble, its signals and its corrections; corrections are made at
+      the console with a reason and an author until accounts exist
+- [x] Measures: coverage, mapping precision per language, share needing confirmation: `taxonomy:report` and
+      `taxonomy:evaluate`, figures in [`taxonomy.md`](taxonomy.md)
+
+The first half of the criterion is measured: a label in any of the 24 languages leads to its concept, over
+every label of the fixture, and precision per language is reported on the whole release. The second half
+is measured as far as it can be without matches: neighbouring occupations surface, and every bubble's
+members and signals are stored and reported. How often a match comes from a neighbour rather than the exact
+occupation, which is what says whether a bubble is useful, needs matches and is measured from M4.
 
 ## M2: Candidate profile
 
@@ -83,9 +104,21 @@ occupation surfaces. Both measured, not asserted.*
 
 *Done when a candidate and a recruiter go end to end. **First real product.***
 
+- [ ] Both decks, the candidate's and the recruiter's, shipped together
+      ([ADR-0006](adr/0006-reciprocal-decks-and-asymmetric-history.md))
+- [ ] Presence in the recruiter deck as a recorded, revocable consent, off by default, asked after the first
+      session beside the blind profile ([ADR-0010](adr/0010-presence-in-the-recruiter-deck-is-opt-in.md))
+- [ ] Guarantee: a profile that has not opted in never appears in a recruiter deck query
 - [ ] Deck composition: hard constraints, then score, then bounded reciprocal-interest boost
 - [ ] Explanation on both sides, derived from the scoring features
-- [ ] One recommendation log line per displayed card
+- [ ] One recommendation log line per displayed card, with the fields
+      [ADR-0011](adr/0011-the-ranking-is-treated-as-an-automated-decision.md) names
+- [ ] The three rights of an automated decision: a named person behind every decision that follows a rank, a
+      point of view a candidate can add, and a contest that reaches a person who answers in writing
+- [ ] Open regions as configuration, with sign-up limited to the Flemish Region at launch and refused elsewhere
+      in words ([ADR-0012](adr/0012-launch-in-the-flemish-region-first.md))
+- [ ] Dutch interface and mediation path complete for the Flemish Region, with the test that refuses a Dutch
+      catalogue missing a key
 - [ ] Swipe card as a CSS transition, with the reduced-motion variant
 - [ ] Buttons performing exactly what the gesture performs
 - [ ] Keyboard operation and screen-reader announcements for the deck
@@ -97,7 +130,7 @@ occupation surfaces. Both measured, not asserted.*
 - [ ] Guarantee: the routing outcome type cannot express a rejection
 - [ ] Guarantee: no left swipe is exposed by any route, view or contract
 - [ ] Right-swipe history with state, and match list
-- [ ] Design tokens generated from one source
+- [ ] Design tokens consumed by the web from the generated theme, with no colour written outside the source
 - [ ] OpenAPI specification frozen, with the three checks that protect it
 
 ## M5: Recruiter console
@@ -178,7 +211,9 @@ occupation surfaces. Both measured, not asserted.*
 *Done when an external audit passes.*
 
 - [ ] Compliance dossier completed against primary sources
-- [ ] Accessibility audit against WCAG 2.2 AA, on every surface
+- [ ] Accessibility audit against WCAG 2.2 AA, on every surface. The legal baseline in the Union references an
+      earlier version of the guideline; 2.2 AA is a commitment the product makes beyond it, and the
+      accessibility statement says so rather than presenting it as what the law asks
 - [ ] Penetration test and remediation
 - [ ] Load test at the target scale
 - [ ] Disaster recovery exercise: restore, measure, record

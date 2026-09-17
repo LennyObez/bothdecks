@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace BothDecks\Tests\Integration;
 
 use BothDecks\Shared\Http\HealthController;
+use BothDecks\Tests\Integration\Support\Application;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Pulsar\Core\Kernel;
 use Pulsar\Testing\Http\TestRequestBuilder;
 use Pulsar\Testing\Http\TestResponse;
 
@@ -25,7 +25,7 @@ final class HealthEndpointTest extends TestCase
     public function testTheApplicationBootsAndAnswersTheHealthRoute(): void
     {
         // Arrange
-        $kernel = self::bootedKernel();
+        $kernel = Application::kernel();
         $request = TestRequestBuilder::get('/health')->build();
 
         // Act
@@ -41,7 +41,7 @@ final class HealthEndpointTest extends TestCase
         // asserted against the configuration file rather than against a literal repeated here.
 
         // Arrange
-        $kernel = self::bootedKernel();
+        $kernel = Application::kernel();
         $request = TestRequestBuilder::get('/health')->build();
 
         // Act
@@ -61,7 +61,7 @@ final class HealthEndpointTest extends TestCase
         // would make the assertions above meaningless.
 
         // Arrange
-        $kernel = self::bootedKernel();
+        $kernel = Application::kernel();
         $request = TestRequestBuilder::get('/no-such-route')->build();
 
         // Act
@@ -88,16 +88,4 @@ final class HealthEndpointTest extends TestCase
         return $value;
     }
 
-    private static function bootedKernel(): Kernel
-    {
-        $bootstrap = require \dirname(__DIR__, 2) . '/bootstrap/app.php';
-
-        self::assertIsCallable($bootstrap, 'bootstrap/app.php must return a callable building the kernel.');
-
-        $kernel = $bootstrap();
-
-        self::assertInstanceOf(Kernel::class, $kernel);
-
-        return $kernel;
-    }
 }

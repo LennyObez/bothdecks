@@ -9,6 +9,8 @@ parameters:
         - routes
         - config
         - public
+        # Named as a file because it carries no extension; it is the console every deployment runs.
+        - bin/bothdecks
 
     # Suppressing a finding is forbidden: there is no baseline file and no ignore list. A finding is fixed at
     # its cause, or the code that produces it is changed. See CONTRIBUTING.md.

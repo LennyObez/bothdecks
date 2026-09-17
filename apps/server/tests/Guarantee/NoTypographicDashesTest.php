@@ -22,12 +22,14 @@ use PHPUnit\Framework\TestCase;
 final class NoTypographicDashesTest extends TestCase
 {
     /**
-     * Files whose content is generated, so their punctuation is not ours to choose.
+     * Files whose content is generated or reproduced, so their punctuation is not ours to choose. A path
+     * ending in a slash names a directory.
      *
      * @var array<string, string>
      */
     private const array GENERATED = [
         'apps/server/composer.lock' => 'written by the dependency manager from upstream package descriptions',
+        'apps/server/tests/Fixtures/taxonomy/snapshot/' => 'a slice of the reference classification, reproduced verbatim and verified by digest',
     ];
 
     public function testNoTrackedFileCarriesALongDash(): void
@@ -130,7 +132,7 @@ final class NoTypographicDashesTest extends TestCase
         $offenders = [];
 
         foreach (self::readableTrackedFiles() as $relativePath => $contents) {
-            if (isset(self::GENERATED[$relativePath])) {
+            if (self::isGenerated($relativePath)) {
                 continue;
             }
 
@@ -142,6 +144,17 @@ final class NoTypographicDashesTest extends TestCase
         sort($offenders);
 
         return $offenders;
+    }
+
+    private static function isGenerated(string $relativePath): bool
+    {
+        foreach (array_keys(self::GENERATED) as $generated) {
+            if ($relativePath === $generated || (str_ends_with($generated, '/') && str_starts_with($relativePath, $generated))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

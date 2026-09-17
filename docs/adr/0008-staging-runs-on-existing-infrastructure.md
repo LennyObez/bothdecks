@@ -2,7 +2,10 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-0009](0009-hosting-in-the-paris-region.md). The exception this record made for staging
+rested on a reading under which the sovereignty rule bound production hosting; that reading is corrected in
+ADR-0009, which decides hosting for every environment. The three conditions on staging data, secrets and
+reachability are kept there.
 
 ## Context
 

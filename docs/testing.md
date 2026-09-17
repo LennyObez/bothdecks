@@ -44,29 +44,29 @@ makes refactoring fail the suite for no reason.
 
 ## Property-based tests
 
-Where the domain states an invariant, the invariant will be tested against generated input rather than against
-a handful of examples. **None of these exist yet**, because none of the behaviour they describe has been
-written; each arrives with its milestone, and listing them here is a commitment rather than a claim.
+Where the domain states an invariant, the invariant is tested against a whole corpus or generated input
+rather than against a handful of examples. Each arrives with its milestone; those not yet written are a
+commitment rather than a claim.
 
-| Invariant | Milestone |
-|---|---|
-| Resolving a keyword to a taxonomy code is idempotent | M1 |
-| Two labels of the same concept in two languages resolve to the same code | M1 |
-| A left swipe never produces a match | M4 |
-| A screening answer never closes a conversation | M4 |
-| An export covers every action in its period and none outside it | M7 |
+| Invariant | Milestone | Test |
+|---|---|---|
+| Resolving a keyword to a taxonomy code is idempotent | M1 | `ResolutionTest`, on the fixture |
+| Every preferred label of every concept in every language leads to that concept and never to another | M1 | `ResolutionTest`, over every label of the fixture |
+| A left swipe never produces a match | M4 | |
+| A screening answer never closes a conversation | M4 | |
+| An export covers every action in its period and none outside it | M7 | |
 
 ## Mutation testing
 
 Line coverage says which lines ran. Mutation testing says which lines are actually checked. The suite is run
 against deliberately altered code, and a mutant that survives marks a line no assertion covers.
 
-A single threshold applies today, because there is one module to measure. It covers `src/`, `bootstrap/` and
-`routes/`, the wiring included, since a mutant nobody kills there means the integration suite is not checking
-the assembly it exists to protect.
+One threshold applies to `src/`, `bootstrap/` and `routes/`, the wiring included, since a mutant nobody kills
+there means the integration suite is not checking the assembly it exists to protect. The taxonomy module is
+measured under it like the shared one.
 
-Per-module thresholds arrive with the modules, in M1. The highest will apply to identity, matching, data
-protection and exports, where a silent defect is expensive.
+Per-module thresholds arrive with the modules where a silent defect is expensive: identity, matching, data
+protection and exports will each carry a higher one than the rest.
 
 ## Test types and where they live
 
@@ -98,7 +98,8 @@ Enforced today:
 | Rendering under a different name leaves no trace of the previous one | ADR-0004 |
 | The framework requirement names one commit and no version range, and the lock file agrees | ADR-0002 |
 | Declared extensions cover what the dependencies need, every workflow installs them, and the setup guide lists them | none |
-| No configuration file takes a name the framework reserves for its own typed configuration | none |
+| A configuration file takes a name the framework reserves only when it is that framework object, and loads as one | none |
+| Every module under `src/` is fenced by the boundary check, and every fence has its module | ADR-0002 |
 | Every workflow action is pinned to a commit and keeps its version in a comment | none |
 | No tracked file carries an absolute path from a developer's machine | the publication rule in CONTRIBUTING.md |
 | The application boots and answers its routes | none |
@@ -140,17 +141,30 @@ green that means nothing.
 |---|---|---|
 | 1 | Formatting | `composer run cs:check` |
 | 2 | Static analysis at maximum level, no suppressions | `composer run phpstan` |
-| 3 | Module boundary check | M1, when a second module exists |
-| 4 | Unit tests | `vendor/bin/phpunit --testsuite unit` |
-| 5 | Integration tests | `vendor/bin/phpunit --testsuite integration` (against a real database from M1) |
-| 6 | Contract tests and backward-compatibility detection | M4, when the contract exists |
-| 7 | Product guarantee suite | `vendor/bin/phpunit --testsuite guarantees` |
-| 8 | End-to-end and accessibility tests | M4, when there are screens to drive |
-| 9 | Mutation testing against the per-module thresholds | `composer run mutation` |
-| 10 | Dependency audit | `composer run audit:deps` |
+| 3 | Module boundary check, every dependency declared | `composer run boundary:check` |
+| 4 | Design source and generated themes agree | `composer run design:check` |
+| 5 | Unit tests | `vendor/bin/phpunit --testsuite unit` |
+| 6 | Integration tests, against a real PostgreSQL | `vendor/bin/phpunit --testsuite integration` |
+| 7 | Contract tests and backward-compatibility detection | M4, when the contract exists |
+| 8 | Product guarantee suite | `vendor/bin/phpunit --testsuite guarantees` |
+| 9 | End-to-end and accessibility tests | M4, when there are screens to drive |
+| 10 | Mutation testing against the per-module thresholds | `composer run mutation` |
+| 11 | Dependency audit | `composer run audit:deps` |
 
-Steps 1, 2, 4, 5 and 7 run together as `composer run qa`. Adding 9 and 10 gives `composer run qa:full`, which
-is what runs before a milestone is declared done.
+Steps 1 to 6 and 8 run together as `composer run qa`, preceded by a check that the manifest and the lock file
+agree. Adding 10 and 11 gives `composer run qa:full`, which is what runs before a milestone is declared done.
+
+### The boundary check
+
+Modules live under `src/`, one directory each. Inside a module, anything under `Internal\` or `Features\` is
+private; the rest is the module's public surface. `deptrac.yaml` names each module as two layers and fixes
+which may depend on which: a module on its own internals, `Shared` on nothing else but the framework, every
+product module on `Shared` and the framework, and one composition root (the module registry) on everything,
+by name. No layer reaches another module's internals.
+
+The check runs with every dependency required to be declared, so a module that reaches a class outside any
+layer fails the gate rather than being noted. A guarantee test keeps the configuration and the directory tree
+in step in both directions: a module without its two layers fails, and a layer without its module fails.
 
 ## What "done" means
 

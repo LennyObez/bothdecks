@@ -3,10 +3,17 @@ version: 2
 updates:
   - package-ecosystem: composer
     directory: /apps/server
+    # One grouped pull request a month for version updates. Security updates are not on this schedule and
+    # arrive the day they are published, one pull request each, because a known vulnerability does not wait
+    # for a milestone. Version updates do: the lock file moves with the milestone commit, and a grouped
+    # request is a reminder rather than a stream of small commits on the default branch.
     schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 2
+    groups:
+      version-updates:
+        applies-to: version-updates
+        patterns: ['*']
     commit-message:
       prefix: chore
       include: scope
@@ -18,8 +25,11 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
+    groups:
+      version-updates:
+        applies-to: version-updates
+        patterns: ['*']
     commit-message:
       prefix: chore
       include: scope

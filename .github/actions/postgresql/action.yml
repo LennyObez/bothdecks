@@ -1,0 +1,33 @@
+name: PostgreSQL with pgvector and PostGIS
+description: >
+  Start the runner's PostgreSQL with the two server extensions the schema depends on, create the test
+  database and its role, and print the versions the job was measured against.
+
+inputs:
+  username:
+    description: The role the application connects as
+    required: true
+  password:
+    description: The role's password, for a server that lives as long as the job
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # The runner ships a PostgreSQL server, stopped. The extensions are installed for whichever major version
+    # the runner carries, so a runner image update does not silently install packages for the wrong server.
+    - name: Start PostgreSQL with pgvector and PostGIS
+      shell: bash
+      env:
+        DB_USERNAME: ${{ inputs.username }}
+        DB_PASSWORD: ${{ inputs.password }}
+      run: |
+        set -euo pipefail
+        major="$(psql --version | sed -E 's/^psql \(PostgreSQL\) ([0-9]+).*/\1/')"
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends --yes "postgresql-${major}-pgvector" "postgresql-${major}-postgis-3"
+        sudo systemctl start postgresql
+        sudo -u postgres psql -v ON_ERROR_STOP=1 -c "create role ${DB_USERNAME} login password '${DB_PASSWORD}'"
+        sudo -u postgres psql -v ON_ERROR_STOP=1 -c "create database bothdecks_test owner ${DB_USERNAME}"
+        sudo -u postgres psql -v ON_ERROR_STOP=1 -d bothdecks_test -c "create extension vector" -c "create extension postgis"
+        sudo -u postgres psql -d bothdecks_test -c "select version()" -c "select extname, extversion from pg_extension order by extname"

@@ -1,0 +1,102 @@
+deptrac:
+  paths:
+    - ./src/
+
+  # Every module under src/ is two layers: its public surface, and its internals. Anything under `Internal\`
+  # or `Features\` is private to the module, following the framework's own convention. A module names another
+  # module only through the other's public surface, and the dependency direction is fixed here rather than
+  # left to review: `Shared` depends on no product module, and product modules depend on `Shared`.
+  #
+  # The check runs with `--fail-on-uncovered`, so a dependency on a class that belongs to no layer is a
+  # failure rather than a note. That is what makes the `Framework` layer necessary: the framework is named
+  # here so that reaching it is a declared dependency, and reaching anything else is not. A guarantee test
+  # refuses a directory under src/ that has no pair of layers here, so a module cannot be added without its
+  # fence.
+  layers:
+    # The one place that is allowed to know every module: it registers their bindings and lists the console
+    # commands each contributes. It is exempt for the same reason the framework exempts its kernel, and it is
+    # exempt by name, so the exemption cannot widen by accident.
+    - name: CompositionRoot
+      collectors:
+        - type: classLike
+          value: ^BothDecks\\Shared\\Module\\ModuleRegistry$
+
+    - name: Shared
+      collectors:
+        - type: bool
+          must:
+            - type: classLike
+              value: ^BothDecks\\Shared\\
+          must_not:
+            - type: classLike
+              value: ^BothDecks\\Shared\\(Internal|Features)\\
+            - type: classLike
+              value: ^BothDecks\\Shared\\Module\\ModuleRegistry$
+
+    - name: Shared_Internal
+      collectors:
+        - type: classLike
+          value: ^BothDecks\\Shared\\(Internal|Features)\\
+
+    - name: Taxonomy
+      collectors:
+        - type: bool
+          must:
+            - type: classLike
+              value: ^BothDecks\\Taxonomy\\
+          must_not:
+            - type: classLike
+              value: ^BothDecks\\Taxonomy\\(Internal|Features)\\
+
+    - name: Taxonomy_Internal
+      collectors:
+        - type: classLike
+          value: ^BothDecks\\Taxonomy\\(Internal|Features)\\
+
+    # The framework, and the PHP-FIG interfaces it exposes at its edges (HTTP messages, containers, logging).
+    # The interfaces are listed with the framework rather than as a vendor layer of their own, because they
+    # reach this code through the framework's signatures and nothing else in `require` supplies a class.
+    - name: Framework
+      collectors:
+        - type: classLike
+          value: ^Pulsar\\
+        - type: classLike
+          value: ^Psr\\
+
+  ruleset:
+    CompositionRoot:
+      - Shared
+      - Shared_Internal
+      - Taxonomy
+      - Taxonomy_Internal
+      - Framework
+
+    # A module's public surface may reach its own internals: the module class wires them. What no layer may
+    # reach is another module's internals.
+    Shared:
+      - Shared_Internal
+      - Framework
+
+    Shared_Internal:
+      - Shared
+      - Framework
+
+    Taxonomy:
+      - Taxonomy_Internal
+      - Shared
+      - Framework
+
+    Taxonomy_Internal:
+      - Taxonomy
+      - Shared
+      - Framework
+
+  analyser:
+    types:
+      - class
+      - class_superglobal
+      - use
+      - file
+      - function
+      - function_superglobal
+      - function_call

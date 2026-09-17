@@ -19,6 +19,10 @@
   // matching, data protection, exports) take the highest thresholds as they are written.
   minMsi: 85,
   minCoveredMsi: 90,
+  // A mutant whose covering tests take longer than this is skipped, and a skipped mutant is not measured.
+  // Some integration tests resolve every label of the fixture, which takes longer than the default; the
+  // bound is set so that every mutant is run.
+  timeout: 90,
   testFramework: 'phpunit',
   // Every suite participates. Restricting the runner to the unit suite would leave code that only the
   // integration and guarantee suites exercise reported as uncovered, understating what the tests actually

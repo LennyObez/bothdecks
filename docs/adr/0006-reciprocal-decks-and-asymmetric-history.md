@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted
+Accepted. Amended by [ADR-0010](0010-presence-in-the-recruiter-deck-is-opt-in.md): a candidate appears in a
+recruiter's deck only after enabling it, so the deck holds those who said yes to the offer and those who chose
+to be found. The rest of this record stands.
 
 ## Context
 

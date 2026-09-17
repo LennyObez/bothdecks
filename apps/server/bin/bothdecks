@@ -1,0 +1,98 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * The application's console.
+ *
+ * Builds the same kernel the front controller and the integration tests build, through bootstrap/app.php, so a
+ * command runs against the configuration a request would see. The framework's own console is not used here:
+ * it discovers every bundled extension from its own directory and generates an environment file when none
+ * exists, neither of which this project wants done on its behalf.
+ *
+ * Migration commands come from the framework and are wired exactly as its console wires them. The project's
+ * own commands are those each module lists, gathered by the module registry and resolved through the
+ * container.
+ */
+
+$root = dirname(__DIR__);
+
+if (getenv('PULSAR_BASE_PATH') === false || getenv('PULSAR_BASE_PATH') === '') {
+    putenv('PULSAR_BASE_PATH=' . $root);
+}
+
+$autoload = $root . '/vendor/autoload.php';
+
+if (!is_file($autoload)) {
+    fwrite(STDERR, "Dependencies are not installed. Run 'composer install' in apps/server.\n");
+    exit(1);
+}
+
+require $autoload;
+
+use BothDecks\Shared\Module\ModuleRegistry;
+use Pulsar\Config\DatabaseConfig;
+use Pulsar\Console\Application;
+use Pulsar\Console\Command\HelpCommand;
+use Pulsar\Console\Command\ListCommand;
+use Pulsar\Console\Command\MigrateCreateCommand;
+use Pulsar\Console\Command\MigrateRollbackCommand;
+use Pulsar\Console\Command\MigrateRunCommand;
+use Pulsar\Console\Command\MigrateStatusCommand;
+use Pulsar\Core\Kernel;
+use Pulsar\Database\ConnectionManager;
+use Pulsar\Database\Migration\MigrationPathResolver;
+use Pulsar\Database\Migration\MigrationPathResolverInterface;
+use Pulsar\Database\Migration\MigrationRepository;
+use Pulsar\Database\Migration\MigrationRunner;
+
+$bootstrap = require $root . '/bootstrap/app.php';
+
+if (!is_callable($bootstrap)) {
+    fwrite(STDERR, "bootstrap/app.php must return a callable that builds the kernel.\n");
+    exit(1);
+}
+
+$kernel = $bootstrap();
+
+if (!$kernel instanceof Kernel) {
+    fwrite(STDERR, "bootstrap/app.php must return a callable that builds a Kernel.\n");
+    exit(1);
+}
+
+try {
+    $kernel->boot();
+} catch (Throwable $failure) {
+    fwrite(STDERR, 'The kernel did not boot: ' . $failure->getMessage() . "\n");
+    exit(1);
+}
+
+$container = $kernel->container();
+$application = new Application($kernel);
+$application->addCommands([
+    new HelpCommand($application),
+    new ListCommand($application),
+]);
+
+if ($container->has(ConnectionManager::class)) {
+    $databaseConfig = $container->get(DatabaseConfig::class);
+    $connectionManager = $container->get(ConnectionManager::class);
+
+    $pathResolver = new MigrationPathResolver($databaseConfig);
+    $container->instance(MigrationPathResolverInterface::class, $pathResolver);
+
+    $repository = new MigrationRepository($pathResolver->resolve());
+    $runner = new MigrationRunner($connectionManager->connection(), $repository, $databaseConfig->migrationsTable);
+
+    $application->addCommands([
+        new MigrateRunCommand($runner),
+        new MigrateRollbackCommand($runner),
+        new MigrateStatusCommand($runner, $repository),
+        new MigrateCreateCommand($databaseConfig->migrationsPath),
+    ]);
+}
+
+$application->addCommands(ModuleRegistry::commands($container));
+
+exit($application->run());
