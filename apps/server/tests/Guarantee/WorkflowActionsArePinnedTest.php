@@ -77,16 +77,63 @@ final class WorkflowActionsArePinnedTest extends TestCase
         self::assertNotEmpty($references, 'No action reference was found; the checks above are inert.');
     }
 
+    public function testEveryLocalActionExistsInTheTree(): void
+    {
+        // An action under `./.github/actions` is checked out with the workflow at the same commit, so nobody
+        // outside the repository can move it and pinning does not apply; what can go wrong is a path that
+        // names nothing, which fails only when the workflow runs.
+
+        // Arrange
+        $missing = [];
+
+        // Act
+        foreach (self::localActionReferences() as $where => $reference) {
+            if (!is_file(self::repositoryRoot() . '/' . substr($reference, 2) . '/action.yml')) {
+                $missing[] = $where . ' -> ' . $reference;
+            }
+        }
+
+        // Assert
+        self::assertSame([], $missing, "These workflow steps reference a local action that does not exist:\n  - " . implode("\n  - ", $missing));
+    }
+
+    public function testTheScanSeesTheLocalActions(): void
+    {
+        // Act
+        $local = self::localActionReferences();
+
+        // Assert
+        self::assertNotEmpty($local, 'The repository is known to use a local action; the scan missed it.');
+    }
+
     /**
-     * Every `uses:` value, keyed by where it appears.
+     * Every `uses:` value naming an action outside the repository, keyed by where it appears.
      *
      * @return array<string, string>
      */
     private static function actionReferences(): array
     {
+        return array_filter(self::allActionReferences(), static fn(string $reference): bool => !str_starts_with($reference, './'));
+    }
+
+    /**
+     * Every `uses:` value naming an action inside the repository, keyed by where it appears.
+     *
+     * @return array<string, string>
+     */
+    private static function localActionReferences(): array
+    {
+        return array_filter(self::allActionReferences(), static fn(string $reference): bool => str_starts_with($reference, './'));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function allActionReferences(): array
+    {
         $references = [];
 
-        foreach (self::actionLines() as $where => $line) {
+        foreach (self::allActionLines() as $where => $line) {
             if (preg_match('/uses:\s*(\S+)/', $line, $matches) === 1) {
                 $references[$where] = $matches[1];
             }
@@ -96,11 +143,24 @@ final class WorkflowActionsArePinnedTest extends TestCase
     }
 
     /**
-     * Every workflow line declaring an action, keyed by `file:line`.
+     * Every workflow line declaring an action outside the repository, keyed by `file:line`.
      *
      * @return array<string, string>
      */
     private static function actionLines(): array
+    {
+        return array_filter(
+            self::allActionLines(),
+            static fn(string $line): bool => preg_match('/uses:\s*\.\//', $line) !== 1,
+        );
+    }
+
+    /**
+     * Every workflow line declaring an action, keyed by `file:line`.
+     *
+     * @return array<string, string>
+     */
+    private static function allActionLines(): array
     {
         $lines = [];
 

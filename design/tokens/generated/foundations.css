@@ -1,0 +1,272 @@
+/*
+ * Generated from design/tokens/tokens.json. Do not edit by hand.
+ *
+ * Run `php design/tools/generate-tokens.php` to rebuild this file, and
+ * `php design/tools/check-tokens.php` to verify that what is committed matches the source.
+ *
+ * A colour, a size, a duration or a curve that is not in the token source does not belong in a
+ * product file either: add it to the source and regenerate.
+ */
+
+@font-face {
+  font-family: "Vollkorn";
+  src: url("../fonts/vollkorn-variable.woff") format("woff");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Commissioner";
+  src: url("../fonts/commissioner-variable.woff") format("woff");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Families */
+  --font-display: "Vollkorn", "Georgia", serif;
+  --font-text: "Commissioner", system-ui, sans-serif;
+  --font-code: "Vollkorn", "Georgia", serif;
+
+  /* Type scale */
+  --type-display-lg-family: var(--font-display);
+  --type-display-lg-size: 40px;
+  --type-display-lg-line-height: 1.3;
+  --type-display-lg-weight: 600;
+  --type-display-lg-tracking: -0.015em;
+  --type-display-lg-font: 600 40px/1.3 var(--font-display);
+  --type-display-lg-features: normal;
+  --type-display-family: var(--font-display);
+  --type-display-size: 32px;
+  --type-display-line-height: 1.3125;
+  --type-display-weight: 600;
+  --type-display-tracking: -0.01em;
+  --type-display-font: 600 32px/1.3125 var(--font-display);
+  --type-display-features: normal;
+  --type-title-family: var(--font-display);
+  --type-title-size: 24px;
+  --type-title-line-height: 1.3333;
+  --type-title-weight: 600;
+  --type-title-tracking: -0.005em;
+  --type-title-font: 600 24px/1.3333 var(--font-display);
+  --type-title-features: normal;
+  --type-heading-family: var(--font-text);
+  --type-heading-size: 18px;
+  --type-heading-line-height: 1.3889;
+  --type-heading-weight: 600;
+  --type-heading-tracking: 0em;
+  --type-heading-font: 600 18px/1.3889 var(--font-text);
+  --type-heading-features: normal;
+  --type-body-lg-family: var(--font-text);
+  --type-body-lg-size: 18px;
+  --type-body-lg-line-height: 1.5556;
+  --type-body-lg-weight: 400;
+  --type-body-lg-tracking: 0em;
+  --type-body-lg-font: 400 18px/1.5556 var(--font-text);
+  --type-body-lg-features: normal;
+  --type-body-family: var(--font-text);
+  --type-body-size: 16px;
+  --type-body-line-height: 1.5;
+  --type-body-weight: 400;
+  --type-body-tracking: 0em;
+  --type-body-font: 400 16px/1.5 var(--font-text);
+  --type-body-features: normal;
+  --type-body-strong-family: var(--font-text);
+  --type-body-strong-size: 16px;
+  --type-body-strong-line-height: 1.5;
+  --type-body-strong-weight: 600;
+  --type-body-strong-tracking: 0em;
+  --type-body-strong-font: 600 16px/1.5 var(--font-text);
+  --type-body-strong-features: normal;
+  --type-label-family: var(--font-text);
+  --type-label-size: 14px;
+  --type-label-line-height: 1.4286;
+  --type-label-weight: 600;
+  --type-label-tracking: 0.005em;
+  --type-label-font: 600 14px/1.4286 var(--font-text);
+  --type-label-features: normal;
+  --type-caption-family: var(--font-text);
+  --type-caption-size: 13px;
+  --type-caption-line-height: 1.3846;
+  --type-caption-weight: 400;
+  --type-caption-tracking: 0.01em;
+  --type-caption-font: 400 13px/1.3846 var(--font-text);
+  --type-caption-features: normal;
+  --type-tabular-family: var(--font-display);
+  --type-tabular-size: 16px;
+  --type-tabular-line-height: 1.5;
+  --type-tabular-weight: 500;
+  --type-tabular-tracking: 0em;
+  --type-tabular-font: 500 16px/1.5 var(--font-display);
+  --type-tabular-features: "tnum" 1, "lnum" 1;
+  --type-code-family: var(--font-code);
+  --type-code-size: 13px;
+  --type-code-line-height: 1.3846;
+  --type-code-weight: 500;
+  --type-code-tracking: 0em;
+  --type-code-font: 500 13px/1.3846 var(--font-code);
+  --type-code-features: "tnum" 1, "lnum" 1;
+  --type-dense-body-family: var(--font-text);
+  --type-dense-body-size: 13px;
+  --type-dense-body-line-height: 1.3846;
+  --type-dense-body-weight: 400;
+  --type-dense-body-tracking: 0em;
+  --type-dense-body-font: 400 13px/1.3846 var(--font-text);
+  --type-dense-body-features: normal;
+  --type-dense-label-family: var(--font-text);
+  --type-dense-label-size: 12px;
+  --type-dense-label-line-height: 1.5;
+  --type-dense-label-weight: 600;
+  --type-dense-label-tracking: 0.005em;
+  --type-dense-label-font: 600 12px/1.5 var(--font-text);
+  --type-dense-label-features: normal;
+
+  /* The smallest size each surface may set, at a system font scale of one */
+  --type-floor-mobile: 13px;
+  --type-floor-candidate-web: 13px;
+  --type-floor-recruiter-console: 12px;
+  --type-floor-absolute: 12px;
+
+  /* Space */
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-18: 18px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  /* Border widths, named apart from the border colours so the two cannot collide */
+  --border-width-hairline: 1px;
+  --border-width-input: 1px;
+  --border-width-focus: 2px;
+  --border-width-selected: 2px;
+
+  /* The dash, drawn from two lengths so every target draws the same one */
+  --dash-on: 4px;
+  --dash-off: 3px;
+
+  /* Icons */
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+  --icon-size-xl: 32px;
+  --icon-grid: 24px;
+  --icon-stroke-sm: 1.5px;
+  --icon-stroke-md: 2px;
+  --icon-stroke-lg: 2px;
+  --icon-stroke-xl: 2.5px;
+  --icon-stroke-selected: 2.5px;
+  --icon-hit-target-ios: 44px;
+  --icon-hit-target-android: 48px;
+
+  /* Controls */
+  --control-height-sm: 32px;
+  --control-height-md: 44px;
+  --control-height-lg: 52px;
+  --control-padding-x-sm: 12px;
+  --control-padding-x-md: 16px;
+  --control-padding-x-lg: 20px;
+  --control-gap-sm: 6px;
+  --control-gap-md: 8px;
+  --control-gap-lg: 8px;
+  --control-thumb: 24px;
+  --control-travel: 20px;
+  --control-box: 20px;
+
+  /* Elevation */
+  --elevation-0-light: 0px 0px 0px rgba(16, 12, 9, 0);
+  --elevation-0-dark: 0px 0px 0px rgba(16, 12, 9, 0);
+  --elevation-1-light: 0px 1px 2px rgba(16, 12, 9, 0.06), 0px 1px 3px rgba(16, 12, 9, 0.04);
+  --elevation-1-dark: 0px 1px 2px rgba(16, 12, 9, 0.3), 0px 1px 3px rgba(16, 12, 9, 0.2);
+  --elevation-2-light: 0px 8px 24px -8px rgba(16, 12, 9, 0.18), 0px 2px 6px rgba(16, 12, 9, 0.06);
+  --elevation-2-dark: 0px 8px 24px -8px rgba(16, 12, 9, 0.5), 0px 2px 6px rgba(16, 12, 9, 0.25);
+  --elevation-3-light: 0px 24px 48px -16px rgba(16, 12, 9, 0.28), 0px 4px 12px rgba(16, 12, 9, 0.08);
+  --elevation-3-dark: 0px 24px 48px -16px rgba(16, 12, 9, 0.6), 0px 4px 12px rgba(16, 12, 9, 0.3);
+
+  /* Duration */
+  --duration-instant: 80ms;
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-exit-right: 260ms;
+  --duration-exit-left: 300ms;
+  --duration-slow: 360ms;
+  --duration-snap: 360ms;
+  --duration-screen-forward: 280ms;
+  --duration-sheet-in: 320ms;
+  --duration-match-headline-offset: 320ms;
+  --duration-confirm-hold: 800ms;
+  --duration-advance-gap: 40ms;
+  --duration-undo-window: 8000ms;
+  --duration-celebrate: 900ms;
+  --duration-reduced: 120ms;
+  --duration-reduced-celebrate: 200ms;
+
+  /* Easing */
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --easing-decelerate: cubic-bezier(0, 0, 0, 1);
+  --easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --easing-snap: cubic-bezier(0.2, 1.2924, 0.5, 1);
+
+  /* Springs, for the script that animates a card rather than for a CSS transition */
+  --spring-snap-back-mass: 1;
+  --spring-snap-back-stiffness: 400;
+  --spring-snap-back-damping-ratio: 0.75;
+  --spring-snap-back-response: 0.3142s;
+  --spring-match-settle-mass: 1;
+  --spring-match-settle-stiffness: 180;
+  --spring-match-settle-damping-ratio: 0.8199;
+  --spring-match-settle-response: 0.4683s;
+  --spring-sheet-mass: 1;
+  --spring-sheet-stiffness: 300;
+  --spring-sheet-damping-ratio: 0.9815;
+  --spring-sheet-response: 0.3628s;
+
+  /* The deck's drag transfer function, read by the script that moves the card */
+  --gesture-commit-threshold: 0.35;
+  --gesture-disarm-threshold: 0.3;
+  --gesture-flick-velocity: 600;
+  --gesture-rotation-per-px: 0.06;
+  --gesture-rotation-cap: 12;
+  --gesture-vertical-damping: 0.35;
+  --gesture-exit-rotation: 18;
+  --gesture-exit-drop: 48px;
+  --gesture-exit-travel: 3;
+  --gesture-next-card-rise: 10px;
+  --gesture-next-card-scale: 0.96;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: var(--duration-reduced);
+    --duration-base: var(--duration-reduced);
+    --duration-exit-right: var(--duration-reduced);
+    --duration-exit-left: var(--duration-reduced);
+    --duration-slow: var(--duration-reduced);
+    --duration-snap: var(--duration-reduced);
+    --duration-screen-forward: var(--duration-reduced);
+    --duration-sheet-in: var(--duration-reduced);
+    --duration-match-headline-offset: var(--duration-reduced);
+    --duration-celebrate: var(--duration-reduced-celebrate);
+    --spring-snap-back-reduced-duration: 0ms;
+    --spring-match-settle-reduced-duration: 200ms;
+    --spring-sheet-reduced-duration: 120ms;
+  }
+}

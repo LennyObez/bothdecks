@@ -49,13 +49,14 @@ accepts.
 Both sides have a deck.
 
 The candidate's deck holds offers compatible with their profile, with offers whose recruiter already swiped
-right on them **surfaced first**: one gesture away from a match. The recruiter's deck holds profiles matching
-their offers, whether or not those candidates showed interest, with candidates who already swiped right on the
-offer **surfaced first**. A mutual right swipe, in either direction, creates the match and opens the
-conversation.
+right on them **surfaced first**: one gesture away from a match. The recruiter's deck holds two kinds of
+people: candidates who already swiped right on the offer, **surfaced first**, and candidates who chose to be
+found. Presence in a recruiter's deck is a recorded, revocable consent, off by default; see
+[ADR-0010](docs/adr/0010-presence-in-the-recruiter-deck-is-opt-in.md). A mutual right swipe, in either
+direction, creates the match and opens the conversation.
 
-Because a recruiter sees profiles that did not ask for anything, the **blind profile is not an option**: no
-name, no photo, no contact details before a match. What a recruiter sees is skills, experience, mobility and
+Because a recruiter sees profiles of people they have never spoken to, the **blind profile is not an option**:
+no name, no photo, no contact details before a match. What a recruiter sees is skills, experience, mobility and
 languages.
 
 **A left swipe leaves no trace anyone can revisit.** Not for the person who made it, not for the person who
@@ -84,8 +85,13 @@ One backend serves three clients over one contract.
 | Database | PostgreSQL, with vector and geospatial extensions |
 | Model inference | EU-hosted only; see [`docs/adr/0003-eu-only-model-inference.md`](docs/adr/0003-eu-only-model-inference.md) |
 
-Hosting, storage, content delivery, mail **and model inference** run on providers under European law. That is a
-product constraint, not a preference, and it is recorded as an architecture decision.
+Personal data rests in the European Union, in a hyperscaler's Paris region, and the operator's jurisdiction is
+an accepted residual risk with named mitigations; see
+[ADR-0009](docs/adr/0009-hosting-in-the-paris-region.md). **Model inference** is a different operation and runs
+only on infrastructure under European law, which is a product constraint rather than a preference; see
+[ADR-0003](docs/adr/0003-eu-only-model-inference.md). The order of every deck is treated as an automated
+decision from the first version, with the three rights that carries built rather than argued away; see
+[ADR-0011](docs/adr/0011-the-ranking-is-treated-as-an-automated-decision.md).
 
 ## Repository structure
 
@@ -101,9 +107,9 @@ A clone contains the directories marked **now**; the rest are created by the mil
 | `apps/server/` | Pulsar application: API and web rendering | now |
 | `docs/` | Architecture decisions, guides, compliance dossier | now |
 | `contract/` | Frozen OpenAPI specification, contract tests, mock server | M4 |
-| `design/` | Single token source generating CSS, Compose and SwiftUI themes | M4 |
-| `taxonomy/` | Ingestion, versioning, bubble computation | M1 |
-| `infra/` | Declarative infrastructure | once a provider is chosen |
+| `design/` | Single token source generating CSS, Compose and SwiftUI themes, and the contract the design file is held to | now |
+| `apps/server/src/Taxonomy/` | Ingestion, versioning, resolution and bubble computation, a module of the server rather than a directory of its own, because it is code the server runs; its reference record is [`docs/taxonomy.md`](docs/taxonomy.md) | now |
+| `infra/` | Environment definitions and the staging deployment script | now |
 | `apps/android/` | Android application (Jetpack Compose) | M6 |
 | `apps/ios/` | iOS application (SwiftUI) | M6 |
 | `shared/` | Kotlin Multiplatform module: core and feature layers | M6 |
@@ -115,20 +121,29 @@ A guarantee is a property enforced by a test that fails on a real violation, not
 separates what holds **today** from what is committed to and the milestone that will enforce it, because a
 README that claims an unwritten check is worth less than one that admits the gap.
 
-**Enforced today.** The first six are in the `guarantees` suite, which runs on every pull request without a
+**Enforced today.** All but the last are in the `guarantees` suite, which runs on every pull request without a
 path filter, because each scans the repository as a whole. Every one of them has been watched failing against a
 deliberate violation; a guarantee nobody has seen fail is a guarantee nobody has verified.
 
 | Guarantee | Why it matters |
 |---|---|
+| Every pair of colours the design composes clears its contrast threshold, in both themes | 4.5:1 for text and 3:1 for a boundary or a meaningful fill are what the success criteria ask; the pairs are derived from the role names, so a role composed somewhere new is measured without anyone adding a row |
+| A colour value is written once, in the token source, and nowhere else | A second copy is a second palette, audited by nobody |
+| Every colour in a generated theme is one the source defines | The generated file is what a browser and a native screen read; a value arriving there from anywhere else reverts on the next generation without trace |
+| Every token group reaches every platform, under the name that platform reads | A group missing from one target does not announce itself; the platform falls back to its own default |
+| Every language the product ships is covered by the shipped typefaces, and every face sets Bulgarian in Bulgarian letterforms | A character a face lacks is drawn by a substitute the design never chose; the Bulgarian shapes are a property of the binary that no stylesheet can produce |
+| The design system carries no copy of the product name | It is a separate publication, and a name in it is copied by hand into the next screen |
+| No tracked file carries an em dash or an en dash | Ordinary punctuation is never the weaker choice, and the alternative reads as machine-written prose |
 | The product name reaches the interface from exactly one place | The codename must be replaceable in production by a configuration change ([ADR-0004](docs/adr/0004-the-product-name-lives-in-one-place.md)) |
 | Every tracked file that can carry user-visible text is inside that scan | A scan is worth what it reaches, and a list of directories is outgrown silently |
 | Rendering under a different name leaves no trace of the previous one | The static scan cannot see a name assembled at runtime; this covers the other half |
 | The framework dependency names one commit, never a range | The framework is pre-release; moving it must be a decision that leaves a diff ([ADR-0002](docs/adr/0002-pulsar-as-backend-and-web-renderer.md)) |
 | Declared extensions cover what the dependencies need, and every pipeline installs them | A missing extension stops `composer install`, so no gate runs at all and the pipeline is red before it has measured anything |
-| No configuration file takes a name the framework reserves | It would be read as the framework's own typed configuration, with a schema of its own |
+| A configuration file takes a name the framework reserves only when it is that framework object, and it loads as one | The framework reads such a file into its own typed configuration; a file that merely shares the name is read with the wrong schema, and one that is never proven to load is a guess |
+| Every module is fenced by the boundary check, and every fence has a module | The check only sees the layers it is told about; a module added without its fence is a module every other module may reach into |
 | Every workflow action is pinned to a commit | A tag can be moved after review by whoever owns the action |
 | No tracked file carries an absolute path from a developer's machine | Every tracked file is published, and such a path says something about its author and nothing about the software |
+| Every relative link in a tracked Markdown file points at a path that exists | A document pointing at a page nobody wrote is the cheapest broken promise, and the one a reader hits first |
 | The application boots and answers its routes | Constructor injection resolves at dispatch time, so a green unit suite proves nothing about serving a request |
 
 **Committed, not yet enforced.** Each becomes a test in the milestone named beside it. Until then it is an
@@ -141,8 +156,8 @@ intention, and this table says so.
 | No left swipe is exposed by any route, view or contract | M4 |
 | The generated specification is byte-identical to the frozen one | M4 |
 | Every swipe gesture has a keyboard and screen-reader equivalent | M4 |
-| Every colour token pair meets the WCAG 2.2 AA contrast threshold | M4 |
-| Every language has a typeface covering its script | M4 |
+| A profile that has not opted in never appears in a recruiter deck query ([ADR-0010](docs/adr/0010-presence-in-the-recruiter-deck-is-opt-in.md)) | M4 |
+| A sign-up from a region not opened is refused, in words ([ADR-0012](docs/adr/0012-launch-in-the-flemish-region-first.md)) | M4 |
 | No user-visible string is hardcoded outside the translation catalogues | M4 |
 | Every displayed recommendation has a corresponding log line | M4 |
 | No screening sequence can be configured to reject automatically | M4 |
@@ -152,19 +167,21 @@ intention, and this table says so.
 
 ## Getting started
 
-Requirements: PHP 8.5+ with the extensions listed in `apps/server/composer.json`, and Composer 2.10+. No
-database is needed at this milestone; PostgreSQL arrives with the taxonomy in M1.
+Requirements: PHP 8.5+ with the extensions listed in `apps/server/composer.json`, Composer 2.10+, and
+PostgreSQL 16+ with the `vector` and `postgis` extensions.
 
 ```bash
 git clone https://github.com/LennyObez/bothdecks.git
 cd bothdecks/apps/server
 composer install
-composer run qa      # formatting, static analysis, every test suite
+cp .env.example .env              # then fill in the database and the master key
+php bin/bothdecks migrate:run
+composer run qa                   # formatting, static analysis, boundaries, design source, every test suite
 php -S localhost:8080 -t public
 ```
 
 `GET /health` answers once the application boots. [`docs/getting-started.md`](docs/getting-started.md) covers
-configuration, the gate sequence and the layout.
+the database, configuration, the gate sequence and the layout.
 
 ## Documentation
 
@@ -175,6 +192,7 @@ configuration, the gate sequence and the layout.
 | [`docs/getting-started.md`](docs/getting-started.md) | Local setup |
 | [`docs/architecture.md`](docs/architecture.md) | Modules, boundaries and data flows |
 | [`docs/testing.md`](docs/testing.md) | Test method and the quality gates |
+| [`docs/deployment.md`](docs/deployment.md) | How a change reaches staging, and the condition on which a deployment counts |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Conventions, commits, review |
 | [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | How people are expected to work together here |
 | [`SECURITY.md`](SECURITY.md) | Reporting a vulnerability |

@@ -44,8 +44,10 @@ the swipe gesture and the accessibility behaviour deserve each platform's own pr
 | `Governance` | Model registry, decision logs, explanations, impact assessments |
 
 A module names another module only through that module's published contract, and anything under an internal
-namespace is private. The framework ships a structural boundary checker; wiring it into this repository's gate
-sequence belongs to M1, the first milestone with more than one module to keep apart.
+namespace is private. This is checked mechanically: `apps/server/deptrac.yaml` names each module as a public
+layer and an internal one and fixes which may depend on which, the gate runs it with every dependency required
+to be declared, and a guarantee test keeps the configuration and the directory tree in step. The rules are
+described in [`testing.md`](testing.md).
 
 ## The value tables
 
@@ -124,5 +126,8 @@ and the framework's own detector over the PHP surface. Until then there is no co
 - [ADR-0005](adr/0005-codes-not-strings.md): codes and bubbles
 - [ADR-0006](adr/0006-reciprocal-decks-and-asymmetric-history.md): decks and history
 - [ADR-0007](adr/0007-screening-orders-never-decides.md): screening
-- [ADR-0008](adr/0008-staging-runs-on-existing-infrastructure.md): where staging runs, and why the sovereignty
-  rule binds production
+- [ADR-0009](adr/0009-hosting-in-the-paris-region.md): where every environment runs, and the residual risk
+  that is accepted
+- [ADR-0010](adr/0010-presence-in-the-recruiter-deck-is-opt-in.md): who is in a recruiter's deck
+- [ADR-0011](adr/0011-the-ranking-is-treated-as-an-automated-decision.md): the order of a deck as a decision
+- [ADR-0012](adr/0012-launch-in-the-flemish-region-first.md): where the product opens first

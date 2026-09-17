@@ -11,7 +11,8 @@ declare(strict_types=1);
  *
  * The file is deliberately **not** named `app.php`: the framework reserves that name, along with twenty-two
  * others, for its own typed configuration, and would read this file expecting a different shape entirely. A
- * guarantee test fails if any file in this directory takes a reserved name.
+ * guarantee test fails if a file in this directory takes a reserved name without being declared as that
+ * framework object and proven to load as one.
  *
  * @see docs/adr/0004-the-product-name-lives-in-one-place.md
  */
@@ -36,10 +37,12 @@ return [
     'url' => env('APP_URL', 'http://localhost:8080'),
 
     /*
-     * Active environment. Anything other than 'production' relaxes error rendering; nothing else depends on
-     * it, because behaviour that differs between environments is behaviour no environment tests.
+     * Active environment, as the health route reports it. The framework reads the same variable for error
+     * rendering and treats an unset one as production; the default here agrees, so the environment a probe
+     * reports is the environment the error pages assume. Nothing else depends on it, because behaviour that
+     * differs between environments is behaviour no environment tests.
      */
-    'env' => env('APP_ENV', 'local'),
+    'env' => env('APP_ENV', 'production'),
 
     /*
      * The locale served when a request expresses no preference. Every locale the product ships in is listed

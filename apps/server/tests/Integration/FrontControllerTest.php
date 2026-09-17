@@ -120,11 +120,15 @@ final class FrontControllerTest extends TestCase
         $root = \dirname(__DIR__, 2);
         $this->port = self::freePort();
 
+        // The child runs with the production posture whatever the developer's own environment file says: the
+        // process environment wins over the file, so a machine whose `.env` switches debugging on still
+        // exercises the pages a visitor would see. What this test asserts about a 404 is only true of those.
         $process = proc_open(
             [PHP_BINARY, '-S', '127.0.0.1:' . $this->port, '-t', $root . '/public'],
             [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
             $pipes,
             $root,
+            ['APP_ENV' => 'production', 'APP_DEBUG' => '0', 'PATH' => (string) getenv('PATH')],
         );
 
         self::assertIsResource($process, 'Could not start the built-in server.');

@@ -15,6 +15,11 @@ old one stays, marked superseded, because the reasoning that was true at the tim
 | [0005](0005-codes-not-strings.md) | Occupations and skills are codes; text is only a rendering |
 | [0006](0006-reciprocal-decks-and-asymmetric-history.md) | Both sides have a deck, and a pass leaves no browsable trace |
 | [0007](0007-screening-orders-never-decides.md) | Automated screening produces an order of treatment, never a decision |
+| [0008](0008-staging-runs-on-existing-infrastructure.md) | Superseded by 0009: staging as an exception to a rule that did not bind production |
+| [0009](0009-hosting-in-the-paris-region.md) | Hosting runs in a hyperscaler's Paris region; the operator's jurisdiction is an accepted residual risk |
+| [0010](0010-presence-in-the-recruiter-deck-is-opt-in.md) | Presence in the recruiter deck is opt-in, off by default |
+| [0011](0011-the-ranking-is-treated-as-an-automated-decision.md) | The ranking is treated as an automated decision from the first version |
+| [0012](0012-launch-in-the-flemish-region-first.md) | Launch in the Flemish Region first |
 
 ## Writing a new one
 

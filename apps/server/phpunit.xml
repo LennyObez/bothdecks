@@ -53,5 +53,23 @@
     <php>
         <ini name="error_reporting" value="E_ALL"/>
         <env name="APP_ENV" value="testing"/>
+        <!--
+            The suite always targets its own database. `force` makes this win over the shell and over the
+            environment file, because a suite that can be pointed at the development database by an exported
+            variable is a suite that will one day truncate it. Host, port and credentials are still taken from
+            the environment, so the same file serves a workstation and the pipeline.
+        -->
+        <env name="DB_DATABASE" value="bothdecks_test" force="true"/>
+        <!--
+            The application logs to standard error, and a test that asks for an unknown route makes it log a
+            warning there. The mutation runner stops the whole initial run on the first byte of standard
+            error, so only what the suite would want to see, an error, is logged while it runs.
+        -->
+        <env name="LOG_LEVEL" value="error" force="true"/>
+        <!--
+            The inspection screen starts closed in every test, whatever token a developer set locally to use
+            it; the tests that need it open configure their own.
+        -->
+        <env name="TAXONOMY_INSPECTION_TOKEN" value="" force="true"/>
     </php>
 </phpunit>

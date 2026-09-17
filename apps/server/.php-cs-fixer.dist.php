@@ -11,7 +11,9 @@ $finder = PhpCsFixer\Finder::create()
         __DIR__ . '/config',
         __DIR__ . '/public',
     ])
-    ->name('*.php');
+    ->name('*.php')
+    // The console entry point carries no extension, and it is PHP that runs on every deployment.
+    ->append([__DIR__ . '/bin/bothdecks']);
 
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)

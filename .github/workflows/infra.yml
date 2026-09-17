@@ -1,0 +1,49 @@
+name: Infrastructure
+
+# The deployment script runs on a real host under /bin/sh. What can be checked before it runs there is
+# checked here: that it parses as POSIX shell, and that it carries none of the constructions a stricter
+# reader flags. A script that fails on the host fails in a log nobody is watching.
+on:
+  push:
+    branches: [main, staging]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infra.yml'
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  scripts:
+    name: Deployment scripts parse and pass shellcheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install shellcheck
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+
+      - name: Parse every script as POSIX shell and run shellcheck
+        run: |
+          set -euo pipefail
+          # Scripts are discovered from what git tracks, never from a list written here.
+          scripts="$(git ls-files 'infra/**/*.sh' 'infra/*.sh')"
+          if [ -z "$scripts" ]; then
+            echo "No script under infra/ to check."
+            exit 0
+          fi
+          for script in $scripts; do
+            sh -n "$script"
+            shellcheck --shell=sh --severity=style "$script"
+            echo "$script: parses and passes shellcheck"
+          done

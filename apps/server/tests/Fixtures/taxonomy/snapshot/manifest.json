@@ -1,0 +1,31 @@
+{
+    "source": "esco",
+    "version": "v1.2.1",
+    "api": "https://ec.europa.eu/esco/api",
+    "licence": "CC-BY-4.0",
+    "attribution": "ESCO, European Commission, DG Employment, Social Affairs and Inclusion",
+    "taken_at": "2026-09-17T09:09:56+00:00",
+    "files": {
+        "occupations.ndjson": {
+            "records": 7,
+            "sha256": "1bbf8d2c63b54060d4b239d3e51de67f649bce231ab24fe736a31f7890b34826",
+            "bytes": 62761
+        },
+        "skills.ndjson": {
+            "records": 74,
+            "sha256": "34fb9e180a6b502b72138c678cb6e2f4bcfa94c70ef97f428a11a3f935ecc086",
+            "bytes": 331280
+        },
+        "isco_groups.ndjson": {
+            "records": 16,
+            "sha256": "a251a2e469a970d172a1d77acc4585b9a368bc07fea660e99de6c46df1b7e121",
+            "bytes": 41246
+        },
+        "skill_groups.ndjson": {
+            "records": 94,
+            "sha256": "3d8283e791c52f473951cd8bcb41cc34849f1dd3537ee1470b1618e46b622910",
+            "bytes": 156383
+        }
+    },
+    "digest": "bcbff42bf063d1bdd38d51ddcd2dce0cd1e0786bd873b2c6edb320e57920dba8"
+}
