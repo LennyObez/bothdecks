@@ -27,3 +27,5 @@ design/tokens/generated/**    linguist-generated=true
 
 # The repository is a polyglot product; report its real composition.
 docs/**  linguist-documentation=true
+# View templates use Blade syntax; without this GitHub's classifier reports them as Hack.
+*.pulse.php  linguist-language=Blade
